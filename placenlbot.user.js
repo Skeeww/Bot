@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PlaceNL Bot Fork for France
 // @namespace    https://github.com/Skeeww/Bot
-// @version      53
+// @version      54
 // @description  FRANCE
 // @author       NoahvdAa (fork by r/placefrance)
 // @match        https://www.reddit.com/r/place/*
@@ -27,7 +27,7 @@ var currentOrderCtx = currentOrderCanvas.getContext('2d');
 var currentPlaceCanvas = document.createElement('canvas');
 
 // Global constants
-let BASE_URL = "mjollnir.ovh";
+let BASE_URL = Math.random() >= 0.5 ? 'folfy.blue' : 'mjollnir.ovh';
 const DEFAULT_TOAST_DURATION_MS = 10000;
 
 const COLOR_MAPPINGS = {
@@ -100,6 +100,10 @@ let getPendingWork = (work, rgbaOrder, rgbaCanvas) => {
 
     Toastify({
         text: `Récupération du jeton d'accès...`,
+        duration: DEFAULT_TOAST_DURATION_MS
+    }).showToast();
+    Toastify({
+        text: `Serveur sélectionné ${BASE_URL}`,
         duration: DEFAULT_TOAST_DURATION_MS
     }).showToast();
     accessToken = await getAccessToken();
