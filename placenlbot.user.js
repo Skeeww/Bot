@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PlaceNL Bot Fork for France
 // @namespace    https://github.com/Skeeww/Bot
-// @version      30
+// @version      30-patched
 // @description  FRANCE
 // @author       NoahvdAa (fork by Skew)
 // @match        https://www.reddit.com/r/place/*
@@ -13,6 +13,7 @@
 // @downloadURL  https://raw.githubusercontent.com/Skeeww/Bot/master/placenlbot.user.js
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
+// @grant        GM.xmlHttpRequest
 // ==/UserScript==
 
 var socket;
@@ -353,24 +354,40 @@ async function getCurrentImageUrl(id = '0') {
 
 function getCanvasFromUrl(url, canvas, x = 0, y = 0, clearCanvas = false) {
     return new Promise((resolve, reject) => {
+        let errorHandler = () => {
+            Toastify({
+                text: 'Erreur de chargement du canevas actuel. On retente dans quelques secondes...',
+                duration: 3000
+            }).showToast();
+            setTimeout(() => loadImage(ctx), 3000);
+        }
         let loadImage = ctx => {
-            var img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-                if (clearCanvas) {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+            GM.xmlHttpRequest({
+                method: "GET",
+                binary: true,
+                responseType: 'blob',
+                url: url,
+                onerror: errorHandler,
+                onload: function(response) {
+                    if (response.status == 200) {
+                        var url = URL.createObjectURL(response.response)
+                        var img = new Image();
+                        img.onload = () => {
+                            if (clearCanvas) {
+                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            }
+                            ctx.drawImage(img, x, y);
+                            resolve(ctx);
+                        };
+                        img.onerror = errorHandler
+                        img.src = url;
+                    }
+                    else {
+                        return errorHandler()
+                    }
                 }
-                ctx.drawImage(img, x, y);
-                resolve(ctx);
-            };
-            img.onerror = () => {
-                Toastify({
-                    text: 'Erreur de chargement du canevas actuel. On retente dans quelques secondes...',
-                    duration: 3000
-                }).showToast();
-                setTimeout(() => loadImage(ctx), 3000);
-            };
-            img.src = url;
+            });
+
         };
         loadImage(canvas.getContext('2d'));
     });
