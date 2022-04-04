@@ -1,14 +1,15 @@
 // ==UserScript==
 // @name         PlaceNL Bot Fork for France
 // @namespace    https://github.com/Skeeww/Bot
-// @version      53
+// @version      54
 // @description  FRANCE
 // @author       NoahvdAa (fork by r/placefrance)
 // @match        https://www.reddit.com/r/place/*
 // @match        https://new.reddit.com/r/place/*
 // @connect      reddit.com
-// @connect      folfy.blue
+// @connect      placefrance.noan.dev
 // @connect      mjollnir.ovh
+// @connect      folfy.blue
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=reddit.com
 // @require	     https://cdn.jsdelivr.net/npm/toastify-js
 // @resource     TOASTIFY_CSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
@@ -27,7 +28,18 @@ var currentOrderCtx = currentOrderCanvas.getContext('2d');
 var currentPlaceCanvas = document.createElement('canvas');
 
 // Global constants
-let BASE_URL = "mjollnir.ovh";
+const BASE_URLS = [
+    "mjollnir.ovh", 
+    //"placefrance.noan.dev", 
+    "folfy.blue"];
+let BASE_ID = Math.floor(Math.random() * BASE_URLS.length)
+let BASE_URL = BASE_URLS[BASE_ID];
+function switch_base_url() {
+    BASE_ID = (BASE_ID+1)%BASE_URLS.length
+    BASE_URL = BASE_URLS[BASE_ID];
+}
+
+
 const DEFAULT_TOAST_DURATION_MS = 10000;
 
 const COLOR_MAPPINGS = {
@@ -121,7 +133,7 @@ let getPendingWork = (work, rgbaOrder, rgbaCanvas) => {
 
 function connectSocket() {
     Toastify({
-        text: 'Connexion au serveur...',
+        text: 'Connexion au serveur '+BASE_URL+'...',
         duration: DEFAULT_TOAST_DURATION_MS
     }).showToast();
 
@@ -187,6 +199,7 @@ function connectSocket() {
         }).showToast();
         console.error('Socketfout: ', e.reason);
         socket.close();
+        switch_base_url();
         setTimeout(connectSocket, 1000);
     };
 }
