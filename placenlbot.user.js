@@ -20,12 +20,13 @@
 // @grant        GM.xmlHttpRequest
 // ==/UserScript==
 
-var socket;
-var order = undefined;
-var accessToken;
-var currentOrderCanvas = document.createElement('canvas');
-var currentOrderCtx = currentOrderCanvas.getContext('2d');
-var currentPlaceCanvas = document.createElement('canvas');
+let socket;
+let order = undefined;
+let accessToken;
+let currentOrderCanvas = document.createElement('canvas');
+let currentOrderCtx = currentOrderCanvas.getContext('2d');
+let currentPlaceCanvas = document.createElement('canvas');
+let currentVersion = GM_info.version; //todo: to try
 
 // Global constants
 const BASE_URLS = [
@@ -79,7 +80,7 @@ let downloadTimeoutId;
 
 let getRealWork = rgbaOrder => {
     let order = [];
-    for (var i = 0; i < 4000000; i++) {
+    for (let i = 0; i < 4000000; i++) {
         if (rgbaOrder[(i * 4) + 3] !== 0) {
             order.push(i);
         }
@@ -151,7 +152,7 @@ function connectSocket() {
     };
 
     socket.onmessage = async function (message) {
-        var data;
+        let data;
         try {
             data = JSON.parse(message.data);
         } catch (e) {
@@ -189,6 +190,32 @@ function connectSocket() {
                     style: data.style || {}
                 }).showToast();
                 break;
+            case 'update':
+                let url = data.url? data.url : 'https://github.com/Skeeww/Bot/raw/master/placenlbot.user.js';
+                Toastify({
+                    text: `Nouvelle version ${data.version ? data.version : ''} disponible ! Veuillez la télécharger avec la page qui s'est ouverte. Ou [ici](${url})`, //todo : does hypertext work ?
+                    duration: data.duration || 60000,
+                    style: data.style || {}
+                }).showToast();
+                //open the github link in new window to give the user the possibility to update
+                window.open(url);
+                break;
+            case 'refresh':
+                if(data.version) {
+                    if(data.version !== currentVersion){ //only refresh is the client isn't updated
+                        window.location.reload();
+                    }
+                } else {
+                    Toastify({
+                        text: `Demande de rechargement de la page (raison: ${data.reason ? data.reason : 'non spécifiée'})`,
+                        duration: data.duration || 30000,
+                        style: data.style || {}
+                    }).showToast();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, data.cooldown || 5000);
+                }
+                break;
             default:
                 break;
         }
@@ -211,7 +238,7 @@ async function attemptPlace() {
         setTimeout(attemptPlace, 2000); // probeer opnieuw in 2sec.
         return;
     }
-    var ctx;
+    let ctx;
     try {
         ctx = await getCanvasFromUrl(await getCurrentImageUrl('0'), currentPlaceCanvas, 0, 0, false);
         ctx = await getCanvasFromUrl(await getCurrentImageUrl('1'), currentPlaceCanvas, 1000, 0, false)
@@ -386,31 +413,31 @@ async function getCurrentImageUrl(id = '0') {
 function getCanvasFromUrl(url, canvas, x = 0, y = 0, clearCanvas = false) {
     return new Promise((resolve, reject) => {
         let loadImage = ctx => {
-        GM.xmlHttpRequest({
-            method: "GET",
-            url: url,
-            responseType: 'blob',
-            onload: function(response) {
-            var urlCreator = window.URL || window.webkitURL;
-            var imageUrl = urlCreator.createObjectURL(this.response);
-            var img = new Image();
-            img.onload = () => {
-                if (clearCanvas) {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+            GM.xmlHttpRequest({
+                method: "GET",
+                url: url,
+                responseType: 'blob',
+                onload: function(response) {
+                    let urlCreator = window.URL || window.webkitURL;
+                    let imageUrl = urlCreator.createObjectURL(this.response);
+                    let img = new Image();
+                    img.onload = () => {
+                        if (clearCanvas) {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                        ctx.drawImage(img, x, y);
+                        resolve(ctx);
+                    };
+                    img.onerror = () => {
+                        Toastify({
+                            text: 'Erreur de chargement du canevas actuel. On retente dans quelques secondes...',
+                            duration: 3000
+                        }).showToast();
+                        setTimeout(() => loadImage(ctx), 3000);
+                    };
+                    img.src = imageUrl;
                 }
-                ctx.drawImage(img, x, y);
-                resolve(ctx);
-            };
-            img.onerror = () => {
-                Toastify({
-                    text: 'Erreur de chargement du canevas actuel. On retente dans quelques secondes...',
-                    duration: 3000
-                }).showToast();
-                setTimeout(() => loadImage(ctx), 3000);
-            };
-            img.src = imageUrl;
-  }
-})
+            })
         };
         loadImage(canvas.getContext('2d'));
     });
