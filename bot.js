@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const BASE_URL = "placefrance.noan.dev";
+const BASE_URL = "mjollnir.ovh";
 const PREFIX = process.env.PREFIX || "simple"
 const VERSION_NUMBER = 11;
 
