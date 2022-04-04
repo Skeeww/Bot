@@ -38,8 +38,6 @@ function switch_base_url() {
     BASE_ID = (BASE_ID+1)%BASE_URLS.length
     BASE_URL = BASE_URLS[BASE_ID];
 }
-
-
 const DEFAULT_TOAST_DURATION_MS = 10000;
 
 const COLOR_MAPPINGS = {
@@ -112,6 +110,10 @@ let getPendingWork = (work, rgbaOrder, rgbaCanvas) => {
 
     Toastify({
         text: `Récupération du jeton d'accès...`,
+        duration: DEFAULT_TOAST_DURATION_MS
+    }).showToast();
+    Toastify({
+        text: `Serveur sélectionné ${BASE_URL}`,
         duration: DEFAULT_TOAST_DURATION_MS
     }).showToast();
     accessToken = await getAccessToken();
