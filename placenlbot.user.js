@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         PlaceNL Bot Fork for France
 // @namespace    https://github.com/Skeeww/Bot
-// @version      31
+// @version      32
 // @description  FRANCE
 // @author       NoahvdAa (fork by Skew)
 // @match        https://www.reddit.com/r/place/*
 // @match        https://new.reddit.com/r/place/*
 // @connect      reddit.com
-// @connect      placenl.noahvdaa.me
+// @connect      placefrance.noan.dev
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=reddit.com
 // @require	     https://cdn.jsdelivr.net/npm/toastify-js
 // @resource     TOASTIFY_CSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
@@ -16,7 +16,6 @@
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
 // @grant        GM.xmlHttpRequest
-// @connect      https://reddit.com
 // ==/UserScript==
 
 var socket;
@@ -131,7 +130,7 @@ function connectSocket() {
             duration: DEFAULT_TOAST_DURATION_MS
         }).showToast();
         socket.send(JSON.stringify({ type: 'getmap' }));
-        socket.send(JSON.stringify({ type: 'brand', brand: 'userscriptV20' }));
+        socket.send(JSON.stringify({ type: 'brand', brand: 'userscriptV32' }));
     };
 
     socket.onmessage = async function (message) {
