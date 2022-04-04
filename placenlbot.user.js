@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PlaceNL Bot Fork for France
 // @namespace    https://github.com/Skeeww/Bot
-// @version      51
+// @version      52
 // @description  FRANCE
 // @author       NoahvdAa (fork by r/placefrance)
 // @match        https://www.reddit.com/r/place/*
@@ -27,7 +27,7 @@ var currentOrderCtx = currentOrderCanvas.getContext('2d');
 var currentPlaceCanvas = document.createElement('canvas');
 
 // Global constants
-let BASE_URL = "mjollnir.ovh";
+let BASE_URL = "folfy.blue";
 const DEFAULT_TOAST_DURATION_MS = 10000;
 
 const COLOR_MAPPINGS = {
